@@ -5,6 +5,7 @@ from PIL import Image
 from supabase import create_client
 from dotenv import load_dotenv
 import io, os, uuid
+import gc
 import torch
 
 torch.set_num_threads(1)
@@ -43,7 +44,8 @@ async def detect_damage(file: UploadFile = File(...), latitude: float = 0.0, lon
     img_width, img_height = image.size
     image_area = img_width * img_height
 
-    results = model(image)
+    with torch.no_grad():
+        results = model(image)
 
     detections = []
     image_url = None
@@ -88,6 +90,9 @@ async def detect_damage(file: UploadFile = File(...), latitude: float = 0.0, lon
 
             supabase.table("reports").insert(detection).execute()
             detections.append(detection)
+
+    del results, image, image_bytes
+    gc.collect()
 
     return {"detections": detections}
 
