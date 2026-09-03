@@ -5,6 +5,9 @@ from PIL import Image
 from supabase import create_client
 from dotenv import load_dotenv
 import io, os, uuid
+import torch
+
+torch.set_num_threads(1)
 
 load_dotenv()
 
@@ -31,6 +34,12 @@ def read_root():
 async def detect_damage(file: UploadFile = File(...), latitude: float = 0.0, longitude: float = 0.0):
     image_bytes = await file.read()
     image = Image.open(io.BytesIO(image_bytes))
+
+    # Resize down before inference — cuts memory usage substantially on
+    # Render's limited free-tier RAM
+    max_dimension = 1024
+    image.thumbnail((max_dimension, max_dimension))
+
     img_width, img_height = image.size
     image_area = img_width * img_height
 
