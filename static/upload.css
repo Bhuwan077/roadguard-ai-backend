@@ -1,0 +1,119 @@
+:root {
+  --bg: #1C1D20;
+  --panel: #26282C;
+  --hazard: #F5C518;
+  --severe: #E4572E;
+  --moderate: #F2A93B;
+  --minor: #8FB05B;
+  --text: #E9E9EA;
+  --text-dim: #9A9CA1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+header {
+  background: var(--panel);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--hazard);
+}
+header h1 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 18px;
+  color: var(--hazard);
+  text-transform: uppercase;
+}
+#back-link {
+  color: var(--text-dim);
+  font-size: 13px;
+  text-decoration: none;
+}
+#back-link:hover { color: var(--hazard); }
+main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+#map { flex: 1; }
+#panel {
+  width: 340px;
+  padding: 20px;
+  background: var(--panel);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+#instruction {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+#coords {
+  font-size: 13px;
+  color: var(--hazard);
+  margin-top: 8px;
+}
+#uploadLabel {
+  display: block;
+  background: #333;
+  color: var(--text);
+  text-align: center;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#uploadLabel:hover { background: #3d3f44; }
+#preview {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+#submitBtn {
+  width: 100%;
+  margin-top: 12px;
+  background: var(--hazard);
+  color: #1C1D20;
+  border: none;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 15px;
+  padding: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#submitBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.result-card {
+  background: #1C1D20;
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid var(--minor);
+  margin-top: 10px;
+}
+.result-card.Severe { border-left-color: var(--severe); }
+.result-card.Moderate { border-left-color: var(--moderate); }
+.result-card.Minor { border-left-color: var(--minor); }
+.result-card .type {
+  font-weight: 600;
+  font-size: 15px;
+}
+.result-card .meta {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}

@@ -1,0 +1,72 @@
+:root {
+  --bg: #1C1D20;
+  --panel: #26282C;
+  --hazard: #F5C518;
+  --text: #E9E9EA;
+  --text-dim: #9A9CA1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+header {
+  width: 100%;
+  padding: 40px 20px 20px;
+  text-align: center;
+}
+header h1 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 32px;
+  color: var(--hazard);
+  text-transform: uppercase;
+}
+header p {
+  color: var(--text-dim);
+  margin-top: 8px;
+  font-size: 14px;
+}
+#cards {
+  width: 100%;
+  max-width: 480px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.card {
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 24px;
+  text-decoration: none;
+  color: var(--text);
+  border-left: 4px solid var(--hazard);
+  transition: transform 0.15s;
+  display: block;
+}
+.card:hover { transform: translateY(-2px); }
+.card .icon { font-size: 28px; }
+.card h2 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 18px;
+  text-transform: uppercase;
+  margin: 10px 0 6px;
+}
+.card p {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+#dashboard-link {
+  margin-top: 10px;
+  color: var(--text-dim);
+  font-size: 13px;
+  text-decoration: none;
+}
+#dashboard-link:hover { color: var(--hazard); }

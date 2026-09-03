@@ -1,0 +1,108 @@
+:root {
+  --bg: #1C1D20;
+  --panel: #26282C;
+  --hazard: #F5C518;
+  --severe: #E4572E;
+  --moderate: #F2A93B;
+  --minor: #8FB05B;
+  --text: #E9E9EA;
+  --text-dim: #9A9CA1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+header {
+  width: 100%;
+  background: var(--panel);
+  padding: 16px 24px;
+  border-bottom: 3px solid var(--hazard);
+  text-align: center;
+}
+header h1 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 20px;
+  color: var(--hazard);
+  text-transform: uppercase;
+}
+main {
+  width: 100%;
+  max-width: 480px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+#camera-wrap {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+#video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#status {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+}
+#controls button {
+  background: var(--hazard);
+  color: #1C1D20;
+  border: none;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 16px;
+  padding: 14px 28px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+#result {
+  width: 100%;
+}
+.result-card {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid var(--minor);
+}
+.result-card.Severe { border-left-color: var(--severe); }
+.result-card.Moderate { border-left-color: var(--moderate); }
+.result-card.Minor { border-left-color: var(--minor); }
+.result-card .type {
+  font-weight: 600;
+  font-size: 15px;
+}
+.result-card .meta {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+#nav {
+  margin-top: 10px;
+}
+#nav a {
+  color: var(--text-dim);
+  font-size: 13px;
+  text-decoration: none;
+}
+#nav a:hover { color: var(--hazard); }

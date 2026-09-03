@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RoadGuard AI — Capture</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="capture.css" />
+</head>
+<body>
+
+<header>
+  <h1>RoadGuard AI — Report Damage</h1>
+</header>
+
+<main>
+  <div id="camera-wrap">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+  </div>
+
+  <div id="status">Starting camera…</div>
+
+  <div id="controls">
+    <button id="captureBtn" disabled>📸 Capture & Submit</button>
+  </div>
+
+  <div id="result"></div>
+
+  <div id="nav">
+    <a href="dashboard.html">View Dashboard →</a>
+  </div>
+</main>
+
+<script src="capture.js"></script>
+</body>
+</html>

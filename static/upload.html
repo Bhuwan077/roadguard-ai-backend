@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RoadGuard AI — Upload</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="upload.css" />
+</head>
+<body>
+
+<header>
+  <h1>RoadGuard AI — Upload a Photo</h1>
+  <a href="index.html" id="back-link">← Home</a>
+</header>
+
+<main>
+  <div id="map"></div>
+
+  <div id="panel">
+    <div id="step1">
+      <p id="instruction">📍 Tap a spot on the map to mark where the photo was taken.</p>
+      <p id="coords"></p>
+    </div>
+
+    <div id="step2" style="display:none;">
+      <label id="uploadLabel" for="fileInput">📁 Choose Photo</label>
+      <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+      <img id="preview" style="display:none;" />
+      <button id="submitBtn" disabled>Check Severity</button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="upload.js"></script>
+</body>
+</html>
