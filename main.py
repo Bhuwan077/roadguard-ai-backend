@@ -40,7 +40,7 @@ async def detect_damage(file: UploadFile = File(...), latitude: float = 0.0, lon
 
     # Resize down before inference — cuts memory usage substantially on
     # Render's limited free-tier RAM
-    max_dimension = 1024
+    max_dimension = 640
     image.thumbnail((max_dimension, max_dimension))
 
     img_width, img_height = image.size
