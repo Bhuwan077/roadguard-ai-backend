@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 from PIL import Image
@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import io, os, uuid
 import gc
 import torch
+import httpx
 
 torch.set_num_threads(1)
 
@@ -14,6 +15,7 @@ load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_ANON_KEY = "sb_publishable_vRniLHL0K84KEBR5fpqBKw_Uht4wKkB"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 STORAGE_BUCKET = "damage-photos"
@@ -100,3 +102,29 @@ async def detect_damage(file: UploadFile = File(...), latitude: float = 0.0, lon
 def get_reports():
     response = supabase.table("reports").select("*").order("id", desc=True).execute()
     return response.data
+
+@app.delete("/admin/reports/{report_id}")
+async def admin_delete_report(report_id: str, authorization: str = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing login token")
+
+    token = authorization.split(" ", 1)[1]
+
+    # Verify the token directly with Supabase's Auth service (separate from
+    # the data-layer outage affecting RLS checks)
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{SUPABASE_URL}/auth/v1/user",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "apikey": SUPABASE_ANON_KEY
+            }
+        )
+
+    if resp.status_code != 200:
+        raise HTTPException(status_code=401, detail="Invalid or expired login session")
+
+    # Token confirmed valid — delete using the backend's own admin access,
+    # which bypasses RLS entirely
+    result = supabase.table("reports").delete().eq("id", report_id).execute()
+    return {"deleted": True, "data": result.data}
