@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Header, HTTPException
+from fastapi import FastAPI, UploadFile, File, Header, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 from PIL import Image
@@ -33,40 +33,46 @@ model = YOLO("models/YOLOv8_Small_RDD.pt")
 def read_root():
     return {"status": "RoadGuard AI backend is running"}
 
+def save_detections_background(image_bytes, detection_records):
+    """Runs after the response has already been sent — uploads the photo
+    once and inserts all detection rows, without making the caller wait."""
+    file_name = f"{uuid.uuid4()}.jpg"
+    supabase.storage.from_(STORAGE_BUCKET).upload(
+        file_name,
+        image_bytes,
+        {"content-type": "image/jpeg"}
+    )
+    image_url = supabase.storage.from_(STORAGE_BUCKET).get_public_url(file_name)
+
+    for record in detection_records:
+        record["image_url"] = image_url
+        supabase.table("reports").insert(record).execute()
+
 @app.post("/detect")
-async def detect_damage(file: UploadFile = File(...), latitude: float = 0.0, longitude: float = 0.0, max_dimension: int = 1024):
+async def detect_damage(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    latitude: float = 0.0,
+    longitude: float = 0.0,
+    max_dimension: int = 1024
+):
     image_bytes = await file.read()
     image = Image.open(io.BytesIO(image_bytes))
 
-    # Resize down before inference — cuts memory usage substantially on
-    # Render's limited free-tier RAM. Callers can request a higher value
-    # (e.g. Upload) when accuracy matters more than speed.
     image.thumbnail((max_dimension, max_dimension))
 
     img_width, img_height = image.size
     image_area = img_width * img_height
 
-    # Lowered from the model's default (~0.25) to catch more borderline
-    # real detections, at the cost of occasional false positives
     with torch.no_grad():
         results = model(image, conf=0.15)
 
     detections = []
-    image_url = None
+    detection_records = []
 
     for result in results:
         if len(result.boxes) == 0:
             continue
-
-        # Only upload the image once per request, and only if something was found
-        if image_url is None:
-            file_name = f"{uuid.uuid4()}.jpg"
-            supabase.storage.from_(STORAGE_BUCKET).upload(
-                file_name,
-                image_bytes,
-                {"content-type": "image/jpeg"}
-            )
-            image_url = supabase.storage.from_(STORAGE_BUCKET).get_public_url(file_name)
 
         for box in result.boxes:
             cls_id = int(box.cls[0])
@@ -89,13 +95,17 @@ async def detect_damage(file: UploadFile = File(...), latitude: float = 0.0, lon
                 "severity": severity,
                 "latitude": latitude,
                 "longitude": longitude,
-                "image_url": image_url
             }
 
-            supabase.table("reports").insert(detection).execute()
             detections.append(detection)
+            detection_records.append(dict(detection))  # separate copy for the DB write
 
-    del results, image, image_bytes
+    # Save the photo + database rows AFTER responding — the caller doesn't
+    # need to wait for storage/database work to see their result
+    if detection_records:
+        background_tasks.add_task(save_detections_background, image_bytes, detection_records)
+
+    del results, image
     gc.collect()
 
     return {"detections": detections}
@@ -112,8 +122,6 @@ async def admin_delete_report(report_id: str, authorization: str = Header(None))
 
     token = authorization.split(" ", 1)[1]
 
-    # Verify the token directly with Supabase's Auth service (separate from
-    # the data-layer outage affecting RLS checks)
     async with httpx.AsyncClient() as client:
         resp = await client.get(
             f"{SUPABASE_URL}/auth/v1/user",
@@ -126,7 +134,5 @@ async def admin_delete_report(report_id: str, authorization: str = Header(None))
     if resp.status_code != 200:
         raise HTTPException(status_code=401, detail="Invalid or expired login session")
 
-    # Token confirmed valid — delete using the backend's own admin access,
-    # which bypasses RLS entirely
     result = supabase.table("reports").delete().eq("id", report_id).execute()
     return {"deleted": True, "data": result.data}
