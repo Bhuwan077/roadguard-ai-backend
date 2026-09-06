@@ -34,20 +34,22 @@ def read_root():
     return {"status": "RoadGuard AI backend is running"}
 
 @app.post("/detect")
-async def detect_damage(file: UploadFile = File(...), latitude: float = 0.0, longitude: float = 0.0):
+async def detect_damage(file: UploadFile = File(...), latitude: float = 0.0, longitude: float = 0.0, max_dimension: int = 1024):
     image_bytes = await file.read()
     image = Image.open(io.BytesIO(image_bytes))
 
     # Resize down before inference — cuts memory usage substantially on
-    # Render's limited free-tier RAM
-    max_dimension = 1024
+    # Render's limited free-tier RAM. Callers can request a higher value
+    # (e.g. Upload) when accuracy matters more than speed.
     image.thumbnail((max_dimension, max_dimension))
 
     img_width, img_height = image.size
     image_area = img_width * img_height
 
+    # Lowered from the model's default (~0.25) to catch more borderline
+    # real detections, at the cost of occasional false positives
     with torch.no_grad():
-        results = model(image)
+        results = model(image, conf=0.15)
 
     detections = []
     image_url = None
