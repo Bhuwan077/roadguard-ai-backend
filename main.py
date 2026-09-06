@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Header, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
-from PIL import Image
+from PIL import Image, ImageOps
 from supabase import create_client
 from dotenv import load_dotenv
 import io, os, uuid
@@ -58,6 +58,7 @@ async def detect_damage(
 ):
     image_bytes = await file.read()
     image = Image.open(io.BytesIO(image_bytes))
+    image = ImageOps.exif_transpose(image)  # fix phone photos saved sideways/upside-down
 
     image.thumbnail((max_dimension, max_dimension))
 
